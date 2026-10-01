@@ -52,11 +52,11 @@ Import each file and save them as `data1`, `data2` and `data3` (Chapter 10, *tib
 
 ```{r import-data}
 
-# data1 <-
+data1 <- read.csv("Datasets/Dataset1.csv")
 
-# data2 <-
+data2 <- read.csv("Datasets/Dataset2.csv")
 
-# data3 <-
+data3 <- read.csv("Datasets/Dataset3.csv", sep = ";")
 
 ```
 
@@ -65,12 +65,14 @@ Import each file and save them as `data1`, `data2` and `data3` (Chapter 10, *tib
 Use `str()` on all three objects.
 
 ```{r inspect-data}
-
+str(data1)
+str(data2)
+str(data3)
 ```
 
 **Question 1:** Which columns did R import as a type you did not expect, and what in the raw files caused it? (Look at the values in those columns.)
 
-**Answer:**
+**Answer:** In dataset 2 I did not expect PC1 and PC2 to be characters, I thought they would be numeric. This most likely happened because in the dataset instead of leaving cells blank they input "Missing". Becuase of the mix of numerical and character values R defaulted to character for the entire column as some cells cannot be numeric. In dataset 3 the reason it is characters is due to the fact that there is semi-colons and dashes. 
 
 ## 4. Fix the missing values
 
@@ -78,12 +80,16 @@ The columns from Question 1 contain words where numbers are expected. Use `mutat
 
 ```{r fix-missing}
 
-# data2 <-
+data2 <- data2 %>%
+    mutate(PC1 = as.numeric(PC1), PC2 = as.numeric(PC2))
 
-# data3 <-
+data3 <- data3 %>%
+    mutate(PC1 = as.numeric(PC1), PC2 = as.numeric(PC2))
 
-# count the NAs
-
+sum(is.na(data2$PC1),
+    is.na(data2$PC2),
+    is.na(data3$PC1),
+    is.na(data3$PC2))
 ```
 
 ## 5. Rename the measurement columns
@@ -91,19 +97,34 @@ The columns from Question 1 contain words where numbers are expected. Use `mutat
 `data2` and `data3` both have columns called `PC1` and `PC2`. Use `rename()` (Chapter 10, *rename() Columns*) to give them names that say where they came from, for example `micro_PC1`/`micro_PC2` and `urine_PC1`/`urine_PC2` (hospital) or `invert_PC1`/`invert_PC2` and `chem_PC1`/`chem_PC2` (lakes). Check the result with `names()`.
 
 ```{r rename-columns}
+data2 <- data2 %>%
+    rename(micro_PC1 = PC1, micro_PC2 = PC2)
 
+data3 <- data3 %>%
+    rename(urine_PC1 = PC1, urine_PC2 = PC2)
+
+names(data2)
+names(data3)
 ```
 
 **Question 2:** What would have happened to these column names if you had joined `data2` and `data3` without renaming? (Try it in the Console if you are not sure.)
 
-**Answer:**
+**Answer:** The columns would have join together as one so we would have both the micro and urine PC1/PC2 inputs in the same column and would have not be able to use them as two different pieces of data. 
 
 ## 6. Make sure `Date` is a date
 
 Check `class()` of the `Date` column in each of the three objects. If any of them is `character`, convert it with `ymd()` from `lubridate` (Chapter 10, *date Objects*). All three must be the same class before you join, or the join will refuse to match them.
 
 ```{r fix-dates}
+class(data1$Date)
+library(lubridate)
+ymd(data1$Date)
 
+class(data2$Date)
+ymd(data2$Date)
+
+class(data3$Date)
+ymd(data3$Date)
 ```
 
 # Part 2 — Join the files
@@ -113,9 +134,8 @@ Check `class()` of the `Date` column in each of the three objects. If any of the
 Combine the three objects into one called `all_data` with `full_join()` (Chapter 10, *Join Datasets*), matching rows that have the same `ID` **and** the same `Date`: `by = c("ID", "Date")`. Two joins are needed. Check the dimensions.
 
 ```{r full-join}
-
-# all_data <-
-
+data1_2 <- full_join(data1, data2, by = c("ID", "Date"))
+all_data <- full_join(data1_2, data3, by = c("ID", "Date"))
 ```
 
 ## 8. Compare the join verbs
@@ -125,18 +145,22 @@ Using only `data1` and `data2`, report the number of rows returned by `inner_joi
 ```{r compare-joins}
 
 # inner
-
-# left
-
-# right
-
-# full
-
+    inner <- inner_join(data1, data2, by = c("ID", "Date"))
+    nrow(inner)
+    # left
+    left <- left_join(data1, data2, by = c("ID", "Date"))
+    nrow(left)
+    # right
+    right <- right_join(data1, data2, by = c("ID", "Date"))
+    nrow(right)
+    # full
+    full <- full_join(data1, data2, by = c("ID", "Date"))
+    nrow(full)
 ```
 
 **Question 3:** The four numbers differ. Explain which rows each verb keeps, and what that tells you about samples that are in one file but not the other.
 
-**Answer:**
+**Answer:** The full verb has the highest number of rows which allows us to infer that it keeps all rows that are found in both datasets. The inner verb has the lowest number of rows which would indicate that it has the most restriction and would only include rows that are common in both datasets. The right and left verbs are in the middle and just indicate which of the datasets will have "priority" in having all their rows saved while only the rows that match in the other dataset are saved. This means for left the first datasets rows are kept and only the common rows in the second are saved and vice versa with right. 
 
 # Part 3 — Dates, summaries and ordering
 
@@ -145,7 +169,8 @@ Using only `data1` and `data2`, report the number of rows returned by `inner_joi
 Add a `Year` column and a `Month` column to `all_data` with `mutate()` and the `lubridate` functions `year()` and `month()` (Chapter 10, *Extracting Components*).
 
 ```{r add-year}
-
+all_data <- all_data %>%
+    mutate(Year = year(Date), Month = month(Date))
 ```
 
 ## 10. Summarise concentration by year
@@ -154,20 +179,24 @@ Use `group_by()` and `summarise()` (Chapter 10, *summarise() + group_by()*) to c
 
 ```{r year-summary}
 
-# year_summary <-
+year_summary <- group_by(all_data, Year) %>%
+    summarise(Mean = mean(Conc, na.rm = TRUE), SD = sd(Conc, na.rm = TRUE))
 
 ```
 
 **Question 4:** Does concentration differ between the two years? Answer in one or two sentences from the table.
 
-**Answer:**
+**Answer:** Yes the concentration varries between the two years. In 2021 the mean was 10.22 whereas 2022 it was only 0.9644. The standard diaviations were also very different with 2021 being 6.14 and 2022 being 1.46. 
 
 ## 11. The five highest concentrations
 
 Use `arrange()` with `desc()` (Chapter 10, *arrange() Rows*) and `select()` (Chapter 10, *select() Columns*) to show the five samples with the highest `Conc`, with only the `ID`, `Year` and `Conc` columns. Pipe the steps together with `%>%` (Chapter 10, *%>%*).
 
 ```{r top-five}
-
+top_five <- all_data %>%
+    arrange(desc(Conc)) %>%
+    select(ID, Year, Conc) %>% 
+    head(5)
 ```
 
 # Part 4 — Reshape
