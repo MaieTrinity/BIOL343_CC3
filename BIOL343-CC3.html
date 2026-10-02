@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Group 2 — names and student numbers in the chunk below">
-<meta name="dcterms.date" content="2026-10-01">
+<meta name="dcterms.date" content="2026-10-02">
 
 <title>BIOL343 Coding Challenge 3</title>
 <style>
@@ -106,7 +106,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">October 1, 2026</p>
+      <p class="date">October 2, 2026</p>
     </div>
   </div>
   
@@ -842,18 +842,70 @@ Caused by warning:
 <h2 class="anchored" data-anchor-id="wide-to-long">12. Wide to long</h2>
 <p>Starting from <code>all_data</code>, the four measurement columns you renamed in Section 5 (e.g.&nbsp;<code>micro_PC1</code>, <code>micro_PC2</code>, <code>urine_PC1</code>, <code>urine_PC2</code>) are in <em>wide</em> format. Use <code>pivot_longer()</code> (Chapter 10, <em>pivot_longer</em>) on <code>all_data</code> to stack those four columns into two, <code>Measure</code> (which column the value came from) and <code>Score</code> (the value). Save the result as <code>long_data</code> and check it with <code>head()</code> and <code>dim()</code>.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="co"># long_data &lt;-</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a>long_data <span class="ot">&lt;-</span> all_data <span class="sc">%&gt;%</span> </span>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">pivot_longer</span>( <span class="at">cols =</span> <span class="fu">c</span>(micro_PC1, micro_PC2, urine_PC1, urine_PC2),</span>
+<span id="cb49-3"><a href="#cb49-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_to =</span> <span class="st">"Measure"</span>, </span>
+<span id="cb49-4"><a href="#cb49-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_to =</span> <span class="st">"Score"</span>)</span>
+<span id="cb49-5"><a href="#cb49-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb49-6"><a href="#cb49-6" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(long_data)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 7
+       ID Date        Conc  Year Month Measure    Score
+    &lt;int&gt; &lt;chr&gt;      &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;      &lt;dbl&gt;
+1 1291543 2022-05-03  3.13  2022     5 micro_PC1  2.92 
+2 1291543 2022-05-03  3.13  2022     5 micro_PC2 -1.80 
+3 1291543 2022-05-03  3.13  2022     5 urine_PC1 -0.974
+4 1291543 2022-05-03  3.13  2022     5 urine_PC2  5.38 
+5 4972386 2021-05-27 12.8   2021     5 micro_PC1  1.84 
+6 4972386 2021-05-27 12.8   2021     5 micro_PC2 -1.42 </code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(long_data)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 3200    7</code></pre>
+</div>
 </div>
 <p>Now use <code>long_data</code> to draw histograms of <code>Score</code> with <code>facet_wrap()</code> so that each <code>Measure</code> gets its own panel (Chapter 4 and Chapter 7). Choose a sensible <code>binwidth</code>, add axis labels and a title, and use <code>theme_classic()</code>.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(long_data, <span class="fu">aes</span>(<span class="at">x=</span> Score)) <span class="sc">+</span> </span>
+<span id="cb53-2"><a href="#cb53-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_histogram</span>(<span class="at">bins =</span> <span class="dv">30</span>) <span class="sc">+</span> </span>
+<span id="cb53-3"><a href="#cb53-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">facet_wrap</span>( <span class="sc">~</span> Measure) <span class="sc">+</span> </span>
+<span id="cb53-4"><a href="#cb53-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme_classic</span>() <span class="sc">+</span> </span>
+<span id="cb53-5"><a href="#cb53-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">labs</span>( <span class="at">title =</span> <span class="st">"Score Distribution by Measure"</span>,</span>
+<span id="cb53-6"><a href="#cb53-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Score"</span>, </span>
+<span id="cb53-7"><a href="#cb53-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Count"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 63 rows containing non-finite outside the scale range
+(`stat_bin()`).</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="BIOL343-CC3_files/figure-html/score-histograms-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
 </section>
 <section id="long-to-wide" class="level2">
 <h2 class="anchored" data-anchor-id="long-to-wide">13. Long to wide</h2>
 <p>Each <code>ID</code> was sampled once in each year. Starting from <code>all_data</code>, <code>select()</code> only <code>ID</code>, <code>Year</code> and <code>Conc</code>, then use <code>pivot_wider()</code> (Chapter 10, <em>pivot_wider</em>) so that there is one row per <code>ID</code> with a column for each year. Save it as <code>wide_conc</code>. Then add a <code>Change</code> column equal to the second year minus the first (column names that start with a digit must be wrapped in back-ticks, e.g.&nbsp;<code>`2022`</code>), and count how many IDs increased.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="co"># wide_conc &lt;-</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb55"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a>wide_conc <span class="ot">&lt;-</span> all_data <span class="sc">%&gt;%</span></span>
+<span id="cb55-2"><a href="#cb55-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">select</span>(ID, Year, Conc) <span class="sc">%&gt;%</span></span>
+<span id="cb55-3"><a href="#cb55-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> Year, <span class="at">values_from =</span> Conc) <span class="sc">%&gt;%</span> </span>
+<span id="cb55-4"><a href="#cb55-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">Change =</span> <span class="st">`</span><span class="at">2022</span><span class="st">`</span> <span class="sc">-</span> <span class="st">`</span><span class="at">2021</span><span class="st">`</span>)</span>
+<span id="cb55-5"><a href="#cb55-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb55-6"><a href="#cb55-6" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(wide_conc<span class="sc">$</span>Change <span class="sc">&gt;</span><span class="dv">0</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 19</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb57"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(<span class="fu">is.na</span>(wide_conc<span class="sc">$</span>Change))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 6</code></pre>
+</div>
 </div>
 <p><strong>Question 5:</strong> How many IDs have a higher concentration in the second year than in the first, and how many have <code>NA</code> for the change? Why are there NAs?</p>
-<p><strong>Answer:</strong></p>
+<p><strong>Answer:</strong> There are 19 IDs that have a higher concentration in the second year than the first, and we know this because their change value was positive. There were also 6 that had NA for their change value, this could be due to either of the an ID not being sampled in both years, this would then make the subtration either x - NA or NA - X both of which would result in the change value being NA.</p>
 </section>
 </section>
 <section id="part-5-test-the-hypothesis-visually" class="level1">
@@ -861,10 +913,30 @@ Caused by warning:
 <section id="pc1-against-pc2" class="level2">
 <h2 class="anchored" data-anchor-id="pc1-against-pc2">14. PC1 against PC2</h2>
 <p>Use <code>ggplot()</code> to plot <code>PC1</code> on the x-axis and <code>PC2</code> on the y-axis for <strong>one</strong> of the two measurement sets, with <code>colour = Conc</code> so that concentration is shown by colour, and <code>facet_wrap()</code> by <code>Year</code>. Include <code>theme_classic()</code>, axis labels and a title (Chapter 4 and Chapter 7). Repeat for the other measurement set if it helps you answer Question 6. A few points will be <strong>grey</strong>: those are samples with no concentration value (<code>Conc</code> is <code>NA</code> because they were not in <code>Dataset1.csv</code>), so no colour can be assigned. Ignore them when you answer Question 6, or drop them first with <code>filter(!is.na(Conc))</code>.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb59"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(all_data, <span class="fu">aes</span>(<span class="at">x =</span> micro_PC1, <span class="at">y =</span> micro_PC2, <span class="at">color =</span> Conc)) <span class="sc">+</span> </span>
+<span id="cb59-2"><a href="#cb59-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_point</span>() <span class="sc">+</span> </span>
+<span id="cb59-3"><a href="#cb59-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">facet_wrap</span>( <span class="sc">~</span> Year) <span class="sc">+</span> </span>
+<span id="cb59-4"><a href="#cb59-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme_classic</span>() <span class="sc">+</span> </span>
+<span id="cb59-5"><a href="#cb59-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">labs</span> (<span class="at">title =</span> <span class="st">"PC1 vs PC2 by Year"</span>, </span>
+<span id="cb59-6"><a href="#cb59-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Microbial Community Principle Component 1 (PC1)"</span>, </span>
+<span id="cb59-7"><a href="#cb59-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Microbial Community Principle Component 2 (PC2)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 24 rows containing missing values or values outside the scale range
+(`geom_point()`).</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="BIOL343-CC3_files/figure-html/pc-scatter-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
 <p><strong>Question 6:</strong> What do the data say about the hypothesis in your scenario (patients with similar viral loads have similar gut microbes and urine metabolites, or lakes with similar arsenic levels have similar invertebrate communities and water chemistry)? Answer in a short paragraph from visual inspection of your figures. For now, assume that any strong pattern is statistically robust; later we will learn to test this with models.</p>
-<p><strong>Answer:</strong></p>
+<p><strong>Answer:</strong> We can see a relationship between gut microbe similarity. However there does seem to be a dependence on the year. In 2021 there seems to be a stronger relationship. We can see a clear concentration gradient shown by the colour gradient from dark blue to lighter blue as PC2 gets lower. With this colour gradient we can see that the lighter blue points are more clustered together lower and the dark blue being clustered near the top in the PCA plot leading to the conclusion that patients with similar viral loads tend to have similar gut microbes. However in 2022, the concentration is pretty homogeneous with all the points being dark blue. In this case we cant really see any segregation or clustering of the different shades. Due to the homogeny the variations in concentration do not seems to show any strong relation between viral load and having similar gut microbes in the same way it did in 2021.</p>
 <p><strong>Question 7:</strong> Read the scenario you did not choose. What, if anything, would you have done differently in the code? What does this tell you about coding as a transferable skill?</p>
-<p><strong>Answer:</strong></p>
+<p><strong>Answer:</strong> Not much would be different had I choosen the other scenario besides simple things like titles and names of variables in the dataset. This really shows how transferable coding skills in R can be as you can do relatively the same thing in multiple scenarios while only having to make minor changes to accomodate the analysis/ scenario you are doing.</p>
 </section>
 </section>
 <section id="do-this-last" class="level1 unnumbered">
